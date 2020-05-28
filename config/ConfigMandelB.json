@@ -1,0 +1,16 @@
+{
+	"dirOutput" : "C:/tmp/MandelBuld/Images/",
+	"imageFileRootName" : "MandelBulb4D_x0",
+	"width" : 1920,
+	"height" : 1080,
+	"RenderingQuality" : 1,
+	"dim" : 4,
+	"fixedCoords" : [0,-1,-1],
+	"power" : 8,
+	"maxIter" : 63,
+	"bailout" : 1.5,
+	"min" : -1.5,
+	"extent" : 3.0,
+	"N" : 256
+}
+
