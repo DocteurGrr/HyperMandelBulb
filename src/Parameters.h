@@ -15,7 +15,7 @@ struct Parameters {
 	// Image directory path
 	std::string dirOutput;
 	// Images root filename + _i .png
-	std::string imageFileRootName;
+	std::string imageFileName;
 	// Image width and height
 	unsigned int width;
 	unsigned int height;
@@ -25,10 +25,12 @@ struct Parameters {
 	unsigned char dim; 
 	// Which coordinates are fixed ? In order to create 3D volume
 	// Fractal 3D = none
-	// Fractal 4D = 0 <= fixedCoords[0] <= 3 
-	// Fractal 5D = 0 <= fixedCoords[0] <= 4, 0 <= fixedCoords[1] <= 4 
-	// Fractal 6D = 0 <= fixedCoords[0] <= 5, 0 <= fixedCoords[1] <= 5, 0 <= fixedCoords[2] <= 5 
+	// Fractal 4D = 0 <= fixedCoords[0] <= 3 means x0, x1, x2 or x3
+	// Fractal 5D = 0 <= fixedCoords[0] <= 4, 0 <= fixedCoords[1] <= 4 means x0, x1, x2, x3 or x4
+	// Fractal 6D = 0 <= fixedCoords[0] <= 5, 0 <= fixedCoords[1] <= 5, 0 <= fixedCoords[2] <= 5 means x0, x1, x2 ,x3 ,x4 or x5
 	size_t fixedCoords[3];
+	// value for fixed coords
+	size_t valueCoords[3];
 	// Mandelbuld power (8 for the most famous one)
 	float power;
 	// Max number of iterations - 1rst criterion for iteration stop

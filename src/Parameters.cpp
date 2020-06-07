@@ -1,6 +1,7 @@
 #include "Parameters.h"
 #include "nlohmann/json.hpp"
 #include <fstream>
+#include <iostream>
 
 using json = nlohmann::json;
 
@@ -11,14 +12,22 @@ void Parameters::import(const std::string& parametersFileName)
 	inputFile >> j;
 
 	dirOutput = j["dirOutput"].get<std::string>();
-	imageFileRootName = j["imageFileRootName"].get<std::string>();
+	std::cout << "Output directory " << dirOutput << std::endl;
+
+	imageFileName = j["imageFileName"].get<std::string>();
+	std::cout << "Image name " << imageFileName << std::endl;
+
 	width = j["width"].get<unsigned int>();
 	height = j["height"].get<unsigned int>();
+	std::cout << "Image width x height " << width << " " << height << std::endl;
 	renderingQuality = (RenderingQuality)j["RenderingQuality"].get<int>(); // 0 or 1
 	dim = j["dim"].get<unsigned char>(); // 3 to 6
 	fixedCoords[0] = j["fixedCoords"][0].get<size_t>();
 	fixedCoords[1] = j["fixedCoords"][1].get<size_t>();
 	fixedCoords[2] = j["fixedCoords"][2].get<size_t>();
+	valueCoords[0] = j["valueCoords"][0].get<size_t>();
+	valueCoords[1] = j["valueCoords"][1].get<size_t>();
+	valueCoords[2] = j["valueCoords"][2].get<size_t>();
 	power = j["power"].get<float>();
 	maxIter = j["maxIter"].get<unsigned char>();
 	bailout = j["bailout"].get<float>();
@@ -47,6 +56,12 @@ bool Parameters::isValid() const
 		if (fixedCoords[2] >= dim)
 			return false;
 	}
+	if ((dim == 4) && (valueCoords[0] >= N))
+		return false;
+	if ((dim == 5) && (valueCoords[0] >= N) && (valueCoords[1] >= N))
+		return false;
+	if ((dim == 6) && (valueCoords[0] >= N) && (valueCoords[1] >= N) && (valueCoords[2] >= N))
+		return false;
 
 	return true;
 }
@@ -54,7 +69,7 @@ bool Parameters::isValid() const
 std::ostream& operator<<(std::ostream& os, const Parameters& param)
 {
 	os << "Output directory " << param.dirOutput << std::endl;
-	os << "Image name " << param.imageFileRootName << std::endl;
+	os << "Image name " << param.imageFileName << std::endl;
 	os << "Image width x height " << param.width << " " << param.height << std::endl;
 	if (param.renderingQuality == RenderingQuality::High)
 	{
@@ -71,13 +86,18 @@ std::ostream& operator<<(std::ostream& os, const Parameters& param)
 		os << "Fixed coordinates " << param.fixedCoords[1] << std::endl;
 	if (param.fixedCoords[2] != size_t(-1))
 		os << "Fixed coordinates " << param.fixedCoords[2] << std::endl;
+	if (param.dim == 4)
+		os << "Fixed value coordinate " << param.valueCoords[0] << std::endl;
+	if (param.dim == 5)
+		os << "Fixed value coordinates " << param.valueCoords[0] << " " << param.valueCoords[1] << std::endl;
+	if (param.dim == 6)
+		os << "Fixed value coordinates " << param.valueCoords[0] << " " << param.valueCoords[1] << " " << param.valueCoords[2] << std::endl;
 	os << "Power " << param.power << std::endl;
 	os << "Maximum number of iterations " << static_cast<unsigned>(param.maxIter) << std::endl;
 	os << "Bailout " << param.bailout << std::endl;
 	os << "Min " << param.min << std::endl;
 	os << "Extent " << param.extent << std::endl;
 	os << "Number sample per axis " << param.N << std::endl;
-	
 
 	return os;
 }

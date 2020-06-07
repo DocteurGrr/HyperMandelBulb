@@ -6,7 +6,6 @@
 
 #include <iostream>
 #include <chrono>
-#include <chrono>
 
 using namespace std::chrono;
 
@@ -21,6 +20,7 @@ int main(int argc, char** argv)
 	}
 
 	std::string jsonFilePath = std::string(argv[1]);
+	std::cout << "Reading " << jsonFilePath << std::endl;
 	Parameters params;
 	params.import(jsonFilePath);
 	if (!params.isValid())

@@ -36,7 +36,7 @@ void Compute::Compute3D(const Parameters& params)
 	);
 
 	ComputeFractal3D(params, tsdfVol);
-  MeshVolumeAndRender(params, 0, tsdfVol);
+  MeshVolumeAndRender(params, tsdfVol);
 }
 
 void Compute::Compute4D(const Parameters& params)
@@ -54,28 +54,25 @@ void Compute::Compute4D(const Parameters& params)
 		origin
 	);
 
-	for (size_t n = 0; n < params.N; n++)
+	std::cout << "Computing image " << params.valueCoords[0] << "/" << params.N << std::endl;
+	switch (params.fixedCoords[0])
 	{
-		std::cout << "Computing image " << n << "/" << params.N << std::endl;
-		switch (params.fixedCoords[0])
-		{
-		case 0 :
-			ComputeFractal4Dx0(params, n, tsdfVol);
-			break;
-		case 1 :
-			ComputeFractal4Dx1(params, n, tsdfVol);
-			break;
-		case 2 :
-			ComputeFractal4Dx2(params, n, tsdfVol);
-			break;
-		case 3 :
-			ComputeFractal4Dx3(params, n, tsdfVol);
-			break;
-		}
-
-		MeshVolumeAndRender(params, n, tsdfVol);
-		std::cout << "************************************** "<< std::endl;
+	case 0 :
+		ComputeFractal4Dx0(params, params.valueCoords[0], tsdfVol);
+		break;
+	case 1 :
+		ComputeFractal4Dx1(params, params.valueCoords[0], tsdfVol);
+		break;
+	case 2 :
+		ComputeFractal4Dx2(params, params.valueCoords[0], tsdfVol);
+		break;
+	case 3 :
+		ComputeFractal4Dx3(params, params.valueCoords[0], tsdfVol);
+		break;
 	}
+
+	MeshVolumeAndRender(params, tsdfVol);
+	std::cout << "************************************** "<< std::endl;
 }
 
 void Compute::ComputeFractal3D(const Parameters& params, open3d::integration::UniformTSDFVolume& tsdfVol)
@@ -136,7 +133,7 @@ void Compute::ComputeFractal3D(const Parameters& params, open3d::integration::Un
 
 	// save to vtk file
 #ifdef DEBUG_VOLUME
-	std::string filepath = params.dirOutput + params.imageFileRootName + std::string(".vtk");
+	std::string filepath = params.dirOutput + params.imageFileName + std::string(".vtk");
 	Output::ExportVtk(filepath, params, step, voxel);
 	std::cout << "Voxel file " << filepath << " saved !" << std::endl;
 #endif
@@ -317,7 +314,7 @@ unsigned char Compute::ComputeMandelBulb4D(float x0, float x1, float x2, float x
 	return iter;
 }
 
-void Compute::MeshVolumeAndRender(const Parameters& params, size_t id, open3d::integration::UniformTSDFVolume& tsdfVol)
+void Compute::MeshVolumeAndRender(const Parameters& params, open3d::integration::UniformTSDFVolume& tsdfVol)
 {
 	high_resolution_clock::time_point start = high_resolution_clock::now();
 	std::shared_ptr<open3d::geometry::TriangleMesh> mesh = tsdfVol.ExtractTriangleMesh();
@@ -339,7 +336,7 @@ void Compute::MeshVolumeAndRender(const Parameters& params, size_t id, open3d::i
 #ifdef DEBUG_MESHING
 	// save	mesh to ply file
 	std::stringstream ssp;
-	ssp << params.dirOutput << params.imageFileRootName << "_" << id <<  std::string(".ply");
+	ssp << params.dirOutput << params.imageFileName << "_" << id <<  std::string(".ply");
 	std::string meshFilePath = ssp.str();
 	open3d::io::WriteTriangleMeshToPLY(meshFilePath, *mesh, false, true, true, true, false, true);
 	std::cout << "Mesh file saved to " << meshFilePath << std::endl;
@@ -352,79 +349,8 @@ void Compute::MeshVolumeAndRender(const Parameters& params, size_t id, open3d::i
 	end = high_resolution_clock::now();
 	std::cout << "Rendering image in " << duration_cast<milliseconds>(end - start).count() << " ms" << std::endl;
 	std::stringstream ss;
-	ss << params.dirOutput << params.imageFileRootName << "_" << id << std::string(".png");
+	ss << params.dirOutput << params.imageFileName << std::string(".png");
 	std::string imageFilePath = ss.str();
 	Output::ExportPNG(imageFilePath, image);
 	std::cout << "Saved image " << imageFilePath << std::endl;
 }
-
-/*
-void computeParallel(size_t m, std::vector<unsigned char>& voxel)
-{
-	// compute voxels values
-	size_t N3 = N * N * N;
-	size_t N2 = N * N;
-
-	tbb::parallel_for((size_t)0, N3, [&](size_t v) {
-		size_t k = v / N2;
-		size_t rem = v % N2;
-		size_t j = rem / N;
-		size_t i = rem % N;
-
-		float x = xmin + ((float)i + 0.5f) * stepx;
-		float y = ymin + ((float)j + 0.5f) * stepy;
-		float z = zmin + ((float)k + 0.5f) * stepz;
-		float w = wmin + ((float)m + 0.5f) * stepw;
-
-		unsigned char iter = 0;
-
-		float r2 = z * z + w * w;
-		float r3 = y * y + r2;
-		float r4 = x * x + r3;
-		float r = sqrtf(r4);
-
-		while ((r < bailout) && (iter < maxIter))
-		{
-			// convert to polar coordinates
-			// See wikipedia articles on n-sphere
-			float phi1 = acosf(x / r);
-			float phi2 = acosf(y / sqrtf(r3));
-			float phi3 = (w >= 0.f) ? acosf(z / sqrtf(r2)) : M_2PI - acosf(z / sqrtf(r2));
-
-			// scale and rotate the point
-			float zr = powf(r, power);
-			phi1 *= power;
-			phi2 *= power;
-			phi3 *= power;
-
-			// convert back to cartesian coordinates
-			float cosphi1 = cosf(phi1);
-			float sinphi1 = sinf(phi1);
-			float cosphi2 = cosf(phi2);
-			float sinphi2 = sinf(phi2);
-			float cosphi3 = cosf(phi3);
-			float sinphi3 = sinf(phi3);
-
-			x += zr * cosphi1;
-			y += zr * sinphi1 * cosphi2;
-			z += zr * sinphi1 * sinphi2 * cosphi3;
-			w += zr * sinphi1 * sinphi2 * sinphi3;
-
-			// prepare next iteration
-			r2 = z * z + w * w;
-			r3 = y * y + r2;
-			r4 = x * x + r3;
-			r = sqrtf(r4);
-			iter++;
-		}
-
-		voxel[v] = iter;
-		}
-	);
-
-	//std::ofstream f;
-	//std::stringstream ss;
-	//ss << filepath << "_" << imgId << ".vtk";
-	//std::string vtkfilepath = ss.str();
-}
-*/

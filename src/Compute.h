@@ -20,7 +20,7 @@ private :
 	static void ComputeFractal4Dx2(const Parameters& params, size_t k, open3d::integration::UniformTSDFVolume& tsdfVol);
 	static void ComputeFractal4Dx3(const Parameters& params, size_t m, open3d::integration::UniformTSDFVolume& tsdfVol);
 	static unsigned char ComputeMandelBulb4D(float x0, float x1, float x2, float x3, const Parameters& params);
-	static void MeshVolumeAndRender(const Parameters& params, size_t id, open3d::integration::UniformTSDFVolume& tsdfVol);
+	static void MeshVolumeAndRender(const Parameters& params, open3d::integration::UniformTSDFVolume& tsdfVol);
 };
 
 
