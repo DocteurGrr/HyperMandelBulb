@@ -1,6 +1,6 @@
 {
 	"dirOutput" : "C:/tmp/MandelBuld/Images/",
-	"imageFileRootName" : "MandelBulb4D_x3",
+	"imageFileName" : "MandelBulb4D_x3",
 	"width" : 1920,
 	"height" : 1080,
 	"RenderingQuality" : 0,

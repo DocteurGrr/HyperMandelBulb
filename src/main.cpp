@@ -41,8 +41,10 @@ int main(int argc, char** argv)
 		Compute::Compute4D(params);
 		break;
 	case 5 :
+		Compute::Compute5D(params);
 		break;
 	case 6 : 
+		Compute::Compute6D(params);
 		break;
 	default : 
 		std::cout << "Computations not implemented for dimension " << params.dim << std::endl;
