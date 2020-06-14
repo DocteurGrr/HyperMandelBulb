@@ -21,11 +21,5 @@ add_executable(HyperMandelBulb ${SRCS})
 target_link_libraries(HyperMandelBulb ospray::ospray TBB::tbb nlohmann_json::nlohmann_json ospcommon::ospcommon ${Open3D_LIBRARIES})
 target_include_directories(HyperMandelBulb PUBLIC ${Open3D_INCLUDE_DIRS})
 
-#nlohmann_json::nlohmann_json 
-#target_include_directories(main PUBLIC ${Open3D_INCLUDE_DIRS})
-#target_link_libraries (main ${Open3D_LIBRARIES})
-#link_directories(${Open3D_LIBRARY_DIRS})
-
-
 
 
