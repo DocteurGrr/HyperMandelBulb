@@ -1,5 +1,7 @@
 # HyperMandelBulb
 
+![alt text](https://github.com/DocteurGrr/HyperMandelBulb/blob/master/MandelBulb4D.png?raw=true)
+
 This very simple programs performs **iterative Fractal computations in high dimensions**.
 
 The formula used is just an extension of the Mandelbulb fractal :
